@@ -34,22 +34,22 @@ function addStyles() {
     document.body.appendChild(node);
 }
 
-export default function snow(numFlakes: number, $stage: HTMLElement) {
+export default function snow(count: number, $stage: HTMLElement) {
     addStyles();
 
     $stage.style.overflow = 'hidden';
     $stage.style.pointerEvents = 'none';
 
-    let maxFlakeSize = 100;
-    let minFlakeSize = 20;
-    let flakeClasses = ['f1', 'f2'];
+    const maxFlakeSize = 100;
+    const minFlakeSize = 25;
+    const flakeClasses = ['f1', 'f2'];
 
-    function resetFlake($flake, yRandom?) {
-        let depth = Math.random();
+    function resetFlake($flake, yRandom?: boolean) {
+        const depth = Math.random();
 
-        let px = -10 + 120 * Math.random();
-        let py = -10 + ((yRandom) ? 100 * Math.random() : 0);
-        let size = minFlakeSize + (maxFlakeSize - minFlakeSize) * depth;
+        const px = 100 * Math.random();
+        const py = ((yRandom) ? 100 * Math.random() : 0) - 25;
+        const size = minFlakeSize + (maxFlakeSize - minFlakeSize) * depth;
 
         $flake.data = {
             depth: depth,
@@ -65,23 +65,24 @@ export default function snow(numFlakes: number, $stage: HTMLElement) {
     function renderFlake($flake, timestamp) {
         let data = $flake.data;
 
-        data.py += 0.1 + 0.3 * data.depth;
+        data.py += 0.1 + 0.25 * data.depth;
         if (data.py > 100) {
             resetFlake($flake);
             data = $flake.data;
         }
 
-        let wind = Math.sin(data.px / 5 + data.py / 10) * minFlakeSize + Math.cos(timestamp / 1200) * maxFlakeSize;
-
-        $flake.data = data;
+        const wind = Math.cos(timestamp / 1000) * data.size * Math.min(data.depth, 0.5);
         const left = $stage.clientWidth * data.px / 100 - data.size / 2;
         const top = $stage.clientHeight * data.py / 100 - data.size;
+
         $flake.style.opacity = 0.8 - Math.max(0, data.py - 75) / 25;
         $flake.style.transform = `translate3d(${left + wind}px, ${top}px, 0)`;
+
+        $flake.data = data;
     }
 
     const flakes = [];
-    for (let i = 0; i < numFlakes; i++) {
+    for (let i = 0; i < count; i++) {
         const $flake = document.createElement('div');
         $flake.classList.add('snow-js-flake');
         $flake.classList.add(flakeClasses[i % flakeClasses.length]);
