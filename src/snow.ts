@@ -1,13 +1,16 @@
 import f1 from './snowflake-01';
 import f2 from './snowflake-02';
 
+const flakeBaseClass = 'snow-js-flake';
+const flakeClasses = ['f1', 'f2'];
+
 const styles = `
-    .snow-js-flake {
+    .${flakeBaseClass} {
         position: absolute;
         pointer-events: none;
     }
-    .snow-js-flake::before,
-    .snow-js-flake::after {
+    .${flakeBaseClass}::before,
+    .${flakeBaseClass}::after {
         content: '';
         position: absolute;
         height: 100%;
@@ -15,7 +18,7 @@ const styles = `
         background: no-repeat center;
         background-size: contain;
     }
-    .snow-js-flake::before {
+    .${flakeBaseClass}::before {
         filter: blur(50px);
         border-radius: 50%;
         background: rgba(0, 0, 0, .25);
@@ -34,6 +37,14 @@ function addStyles() {
     document.body.appendChild(node);
 }
 
+interface Snowflake {
+    el: HTMLElement,
+    depth: number,
+    size: number,
+    px: number,
+    py: number
+}
+
 export default function snow(count: number, $stage: HTMLElement) {
     addStyles();
 
@@ -42,53 +53,58 @@ export default function snow(count: number, $stage: HTMLElement) {
 
     const maxFlakeSize = 100;
     const minFlakeSize = 25;
-    const flakeClasses = ['f1', 'f2'];
 
-    function resetFlake($flake, yRandom?: boolean) {
+    function flakeFactory(flakeClass: string): Snowflake {
+        const $flake = document.createElement('div');
+        $flake.classList.add(flakeBaseClass);
+        $flake.classList.add(flakeClass);
+        $stage.appendChild($flake);
+
+        return {
+            el: $flake,
+            depth: 0,
+            size: 0,
+            px: 0,
+            py: 0
+        }
+    }
+
+    function resetFlake(flake: Snowflake, yRandom?: boolean) {
         const depth = Math.random();
 
         const px = 100 * Math.random();
         const py = ((yRandom) ? 100 * Math.random() : 0) - 25;
         const size = minFlakeSize + (maxFlakeSize - minFlakeSize) * depth;
 
-        $flake.data = {
-            depth: depth,
-            size: size,
-            px: px,
-            py: py
-        };
+        flake.depth = depth;
+        flake.size = size;
+        flake.px = px;
+        flake.py = py;
 
-        $flake.style.width = `${size}px`;
-        $flake.style.height = `${size}px`;
+        flake.el.style.width = `${size}px`;
+        flake.el.style.height = `${size}px`;
     }
 
-    function renderFlake($flake, timestamp) {
-        let data = $flake.data;
-
-        data.py += 0.1 + 0.25 * data.depth;
-        if (data.py > 100) {
-            resetFlake($flake);
-            data = $flake.data;
+    function renderFlake(flake: Snowflake, timestamp) {
+        flake.py += 0.1 + 0.25 * flake.depth;
+        if (flake.py > 100) {
+            resetFlake(flake);
         }
 
-        const wind = Math.cos(timestamp / 1000) * data.size * Math.min(data.depth, 0.5);
-        const left = $stage.clientWidth * data.px / 100 - data.size / 2;
-        const top = $stage.clientHeight * data.py / 100 - data.size;
+        const wind = Math.cos(timestamp / 1000) * flake.size * Math.min(flake.depth, 0.5) * 1.25;
+        const left = $stage.clientWidth * flake.px / 100 - flake.size / 2;
+        const top = $stage.clientHeight * flake.py / 100 - flake.size;
 
-        $flake.style.opacity = 0.8 - Math.max(0, data.py - 75) / 25;
-        $flake.style.transform = `translate3d(${left + wind}px, ${top}px, 0)`;
-
-        $flake.data = data;
+        // @ts-ignore
+        flake.el.style.opacity = 0.8 - Math.max(0, flake.py - 75) / 25;
+        flake.el.style.transform = `translate3d(${left + wind}px, ${top}px, 0)`;
     }
 
-    const flakes = [];
+    const flakes: Array<Snowflake> = [];
     for (let i = 0; i < count; i++) {
-        const $flake = document.createElement('div');
-        $flake.classList.add('snow-js-flake');
-        $flake.classList.add(flakeClasses[i % flakeClasses.length]);
-        $stage.appendChild($flake);
-        resetFlake($flake, true);
-        flakes.push($flake);
+        const flake = flakeFactory(flakeClasses[i % flakeClasses.length]);
+        resetFlake(flake, true);
+        flakes.push(flake);
     }
 
     const loop = function (timestamp?) {
