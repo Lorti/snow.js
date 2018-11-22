@@ -2,7 +2,8 @@ module.exports = {
     entry: './src/snow.ts',
     output: {
         filename: 'snow.js',
-        path: __dirname
+        path: __dirname,
+        library: 'snow',
     },
     resolve: {
         extensions: ['.ts', '.js']
