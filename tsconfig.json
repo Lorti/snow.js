@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "outDir": ".",
+    "removeComments": true
+  },
+  "files": [
+    "src/snow.ts"
+  ]
+}
