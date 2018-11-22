@@ -4,6 +4,8 @@ module.exports = {
         filename: 'snow.js',
         path: __dirname,
         library: 'snow',
+        libraryExport: 'default',
+        libraryTarget: 'umd'
     },
     resolve: {
         extensions: ['.ts', '.js']
