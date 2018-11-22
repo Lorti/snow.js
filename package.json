@@ -5,8 +5,8 @@
   "main": "snow.js",
   "scripts": {
     "dev": "parcel src/index.html",
-    "build": "webpack",
-    "prepare": "npm run build"
+    "build": "parcel build src/index.html",
+    "prepare": "webpack"
   },
   "repository": "https://github.com/Lorti/snow.js",
   "keywords": [

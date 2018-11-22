@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "module": "amd",
     "noImplicitAny": false,
     "removeComments": true
   },
