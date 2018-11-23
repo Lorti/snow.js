@@ -4,7 +4,7 @@ https://schneeflocken.netlify.com
 
 ## Installation
 
-`npm install snow.js`
+`npm install @lorti/snow.js`
 
 ## Usage
 
